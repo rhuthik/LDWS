@@ -1,0 +1,9 @@
+#ifndef INCLUDE_CONSTANTS_HPP
+#define INCLUDE_CONSTANTS_HPP
+
+
+#define NUM_DEBLUR_VARIANTS 3
+
+
+
+#endif
