@@ -35,7 +35,7 @@ int main() {
   }
 
   // Show the result
-  cv::imwrite("blur.png", blur);
+  cv::imwrite("output.png", result);
   cv::waitKey();
 
   return 0;
