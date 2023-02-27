@@ -3,6 +3,7 @@
 using namespace cv;
 using namespace std;
 
+
 void blurring(cv::Mat gray,cv::Mat& blur,int m_one){
   if(m_one==1)
     GaussianBlur(gray, blur, cv::Size(5, 5), 0, 0);
@@ -53,11 +54,11 @@ void edge_detection(Mat blur,Mat& edges,int m_two){
   }
 }
 
-void Hough_Transforms(Mat edges,vector<cv::Vec4i>& lines,int m_three){
-  if(m_three==1){
-    HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
-  }
-  else if(m_three==2){
+void Hough_Transforms(Mat result,Mat edges,vector<cv::Vec2f>& lines,int m_three){
+  // if(m_three==1){
+  //   HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
+  // }
+  if(m_three==2){
     HoughLines(edges, lines, 1, CV_PI/180, 150, 0, 0 );
   }
   else if(m_three==3){
@@ -93,8 +94,20 @@ void Hough_Transforms(Mat edges,vector<cv::Vec4i>& lines,int m_three){
         max_gap += 2;
         if (!detected_lines.empty()) break;
     }
-    lines.clear();
-    copy(detected_lines.begin(), detected_lines.end(), std::back_inserter(lines));
+    for (size_t i = 0; i < detected_lines.size(); i++)
+    {
+        float rho = detected_lines[i][0], theta = detected_lines[i][1];
+        Point pt1, pt2;
+        double a = cos(theta), b = sin(theta);
+        double x0 = a*rho, y0 = b*rho;
+        pt1.x = cvRound(x0 + 1000*(-b));
+        pt1.y = cvRound(y0 + 1000*(a));
+        pt2.x = cvRound(x0 - 1000*(-b));
+        pt2.y = cvRound(y0 - 1000*(a));
+        line(result, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+    }
+    // lines.clear();
+    // copy(detected_lines.begin(), detected_lines.end(), std::back_inserter(lines));
   }
   else if(m_three==4){
     cout<<"Test";
@@ -120,27 +133,49 @@ int main() {
 
   // Apply Gaussian blur to reduce noise
   cv::Mat blur;
-  blurring(gray,blur,4);
+  blurring(gray,blur,1);
   // cv::GaussianBlur(gray, blur, cv::Size(5, 5), 0, 0);
 
   // Apply Canny edge detection
   cv::Mat edges;
   edge_detection(blur,edges,1);
-
+  int h=3;
+  cv::Mat result = image.clone();
   // Find lines using Hough transform
-  std::vector<cv::Vec4i> lines;
-  Hough_Transforms(edges,lines,1);
+  if(h==1){
+    std::vector<cv::Vec4i> linesp;
+    HoughLinesP(edges, linesp, 1, CV_PI/180, 50, 50, 10);
+    // Draw the lines on the image
+    for (size_t i = 0; i < linesp.size(); i++) {
+      cv::line(result, cv::Point(linesp[i][0], linesp[i][1]),
+              cv::Point(linesp[i][2], linesp[i][3]), cv::Scalar(0, 0, 255), 3,LINE_AA);
+  }
+  }
+  else if(h==2||h==3){
+    std::vector<Vec2f> lines;
+    Hough_Transforms(result,edges,lines,h);
+    // Draw the lines on the image
+    if(h==2){
+      for (size_t i = 0; i < lines.size(); i++)
+      {
+          float rho = lines[i][0], theta = lines[i][1];
+          Point pt1, pt2;
+          double a = cos(theta), b = sin(theta);
+          double x0 = a*rho, y0 = b*rho;
+          pt1.x = cvRound(x0 + 1000*(-b));
+          pt1.y = cvRound(y0 + 1000*(a));
+          pt2.x = cvRound(x0 - 1000*(-b));
+          pt2.y = cvRound(y0 - 1000*(a));
+          line(result, pt1, pt2, Scalar(0,0,255), 3, LINE_AA);
+      }
+    }
+  }
   // cv::HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
 
-  // Draw the lines on the image
-  // cv::Mat result = image.clone();
-  // for (size_t i = 0; i < lines.size(); i++) {
-  //   cv::line(result, cv::Point(lines[i][0], lines[i][1]),
-  //            cv::Point(lines[i][2], lines[i][3]), cv::Scalar(0, 0, 255), 3);
-  // }
+  
 
   // Show the result
-  cv::imwrite("blur4.png", blur);
+  cv::imwrite("houghresult3.png", result);
   cv::waitKey();
 
   return 0;
