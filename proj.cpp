@@ -109,9 +109,6 @@ void Hough_Transforms(Mat result,Mat edges,vector<cv::Vec2f>& lines,int m_three)
     // lines.clear();
     // copy(detected_lines.begin(), detected_lines.end(), std::back_inserter(lines));
   }
-  else if(m_three==4){
-    cout<<"Test";
-  }
 }
 
 
@@ -163,13 +160,15 @@ void getticks(){
   auto end_time = std::chrono::steady_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
   std::cout << "Elapsed time hough: "<<"  "  << elapsed_time.count() << " us" << std::endl;
+
+
 }
 
 
 int main() {
   // initailising step to check ticks
-  getticks();
-
+  // getticks();
+  auto start_time = std::chrono::steady_clock::now();
   // Read the road image
   cv::Mat image = cv::imread("road.jpg");
 
@@ -191,7 +190,7 @@ int main() {
   // Apply Canny edge detection
   cv::Mat edges;
   edge_detection(blur,edges,1);
-  int h=3;
+  int h=1;
   cv::Mat result = image.clone();
   // Find lines using Hough transform
   if(h==1){
@@ -224,7 +223,9 @@ int main() {
   }
   // cv::HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
 
-  
+  auto end_time = std::chrono::steady_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+  std::cout << "Elapsed time total: "<<"  "  << elapsed_time.count() << " us" << std::endl;
 
   // Show the result
   cv::imwrite("houghresult3.png", result);
