@@ -1,5 +1,4 @@
-build/objects/src/deblurring/mod1c1.o: src/deblurring/mod1c1.cpp \
- include/deblurring/mod1c1.hpp \
+build/objects/src/deblurring/deblur_box.o: src/deblurring/deblur_box.cpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -104,4 +103,5 @@ build/objects/src/deblurring/mod1c1.o: src/deblurring/mod1c1.cpp \
  /usr/local/include/opencv4/opencv2/stitching/detail/camera.hpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
- /usr/local/include/opencv4/opencv2/video/background_segm.hpp
+ /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
+ include/deblurring/deblur_box.hpp

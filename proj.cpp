@@ -1,8 +1,8 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
+#include <chrono>
 using namespace cv;
 using namespace std;
-
 
 void blurring(cv::Mat gray,cv::Mat& blur,int m_one){
   if(m_one==1)
@@ -10,7 +10,7 @@ void blurring(cv::Mat gray,cv::Mat& blur,int m_one){
   else if(m_one==2){
     medianBlur(gray,blur,3);
   }
-  else if(m_one==3){
+  else if(m_one==4){
     // Calculate the histogram of the image
     Mat hist;
     int channels[] = {0};
@@ -35,7 +35,7 @@ void blurring(cv::Mat gray,cv::Mat& blur,int m_one){
     // Apply the lookup table to the image
     LUT(gray, lut, blur);
   }
-  else if(m_one==4){
+  else if(m_one==3){
     int kernel_size=3;
     boxFilter(gray, blur, -1, Size(kernel_size, kernel_size));
   }
@@ -115,9 +115,61 @@ void Hough_Transforms(Mat result,Mat edges,vector<cv::Vec2f>& lines,int m_three)
 }
 
 
+void getticks(){
+
+  cv::Mat image = cv::imread("road.jpg");
+
+  cv::Mat gray;
+  cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+
+  // Apply Gaussian blur to reduce noise
+  cv::Mat blur;
+  for (int i=1;i<4;i++){
+    auto start_time = std::chrono::steady_clock::now();
+
+  // Call function to measure
+  blurring(gray,blur,i);
+
+  // Get end time
+  auto end_time = std::chrono::steady_clock::now();
+
+  // Calculate elapsed time in microsecs
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+  // a[i]=elapsed_time;
+  std::cout << "Elapsed time blur: "<<i<<"  " << elapsed_time.count() << " us" << std::endl;
+  }
+  
+  blurring(gray,blur,1);
+  cv::Mat edges;
+  for (int i=1;i<4;i++){
+    auto start_time = std::chrono::steady_clock::now();
+
+  // Call function to measure
+  edge_detection(blur,edges,i);
+
+  // Get end time
+  auto end_time = std::chrono::steady_clock::now();
+
+  // Calculate elapsed time in microsecs
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+  // a[i]=elapsed_time;
+  std::cout << "Elapsed time edge: "<<i<<"  "  << elapsed_time.count() << " us" << std::endl;
+  }
+  edge_detection(blur,edges,1);
+
+  std::vector<cv::Vec4i> linesp;
+  auto start_time = std::chrono::steady_clock::now();
+  HoughLinesP(edges, linesp, 1, CV_PI/180, 50, 50, 10);
+  auto end_time = std::chrono::steady_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
+  std::cout << "Elapsed time hough: "<<"  "  << elapsed_time.count() << " us" << std::endl;
+}
 
 
 int main() {
+  // initailising step to check ticks
+  getticks();
+
   // Read the road image
   cv::Mat image = cv::imread("road.jpg");
 

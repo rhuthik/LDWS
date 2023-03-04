@@ -1,5 +1,5 @@
-build/objects/src/deblurring/deblur.o: src/deblurring/deblur.cpp \
- include/constants.hpp include/deblurring/deblur.hpp \
+build/objects/src/deblurring/deblur_gaussian.o: \
+ src/deblurring/deblur_gaussian.cpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -105,6 +105,4 @@ build/objects/src/deblurring/deblur.o: src/deblurring/deblur.cpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
- include/deblurring/deblur_box.hpp include/deblurring/deblur_median.hpp \
- include/deblurring/deblur_gaussian.hpp \
- include/deblurring/deblur_histogram.hpp
+ include/deblurring/deblur_gaussian.hpp

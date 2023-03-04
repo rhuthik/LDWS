@@ -8,7 +8,6 @@ TARGET   := ldws
 INCLUDE  := -Iinclude/
 SRC      :=                      \
    $(wildcard src/deblurring/*.cpp) \
-   $(wildcard src/module2/*.cpp) \
    $(wildcard src/shedutil/*.cpp) \
    $(wildcard src/*.cpp)         \
 

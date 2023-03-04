@@ -1,4 +1,4 @@
-build/objects/src/ldws.o: src/ldws.cpp include/deblurring/mod1c1.hpp \
+build/objects/src/ldws.o: src/ldws.cpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -104,6 +104,5 @@ build/objects/src/ldws.o: src/ldws.cpp include/deblurring/mod1c1.hpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
- include/deblurring/mod1c2.hpp include/module2/mod2c1.hpp \
- include/module2/mod2c2.hpp include/shedutil/schedule.hpp \
- include/deblurring/deblur.hpp include/ldws.hpp include/constants.hpp
+ include/ldws.hpp include/constants.hpp include/shedutil/schedule.hpp \
+ include/deblurring/deblur.hpp

@@ -2,7 +2,7 @@
 #define INCLUDE_CONSTANTS_HPP
 
 
-#define NUM_DEBLUR_VARIANTS 3
+#define NUM_DEBLUR_VARIANTS 4
 
 
 
