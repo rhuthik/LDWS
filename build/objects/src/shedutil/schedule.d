@@ -1,5 +1,4 @@
 build/objects/src/shedutil/schedule.o: src/shedutil/schedule.cpp \
- include/shedutil/schedule.hpp include/deblurring/deblur.hpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -104,4 +103,6 @@ build/objects/src/shedutil/schedule.o: src/shedutil/schedule.cpp \
  /usr/local/include/opencv4/opencv2/stitching/detail/camera.hpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
- /usr/local/include/opencv4/opencv2/video/background_segm.hpp
+ /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
+ include/constants.hpp include/shedutil/schedule.hpp \
+ include/blurring/blur.hpp include/edgedetection/edge.hpp

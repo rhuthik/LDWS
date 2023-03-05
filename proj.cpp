@@ -55,14 +55,14 @@ void edge_detection(Mat blur,Mat& edges,int m_two){
 }
 
 void Hough_Transforms(Mat result,Mat edges,vector<cv::Vec2f>& lines,int m_three){
-  // if(m_three==1){
-  //   HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10);
-  // }
+/ if(m_three==1){
+   HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10); //proba
+}
   if(m_three==2){
-    HoughLines(edges, lines, 1, CV_PI/180, 150, 0, 0 );
+    HoughLines(edges, lines, 1, CV_PI/180, 150, 0, 0 ); //normal 
   }
   else if(m_three==3){
-    HoughLines(edges, lines, 1, CV_PI / 180, 50, 0, 0);
+    HoughLines(edges, lines, 1, CV_PI / 180, 50, 0, 0); //adaptive
     int threshold = 80;
     int max_gap = 10;
 

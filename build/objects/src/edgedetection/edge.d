@@ -1,4 +1,5 @@
-build/objects/src/ldws.o: src/ldws.cpp \
+build/objects/src/edgedetection/edge.o: src/edgedetection/edge.cpp \
+ include/constants.hpp include/edgedetection/edge.hpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -104,5 +105,6 @@ build/objects/src/ldws.o: src/ldws.cpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
- include/ldws.hpp include/constants.hpp include/shedutil/schedule.hpp \
- include/blurring/blur.hpp
+ include/edgedetection/edge_canny.hpp \
+ include/edgedetection/edge_sobel.hpp \
+ include/edgedetection/edge_laplacian.hpp

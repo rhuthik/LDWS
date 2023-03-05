@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <vector>
-#include <deblurring/deblur.hpp>
+#include <blurring/blur.hpp>
+#include <opencv2/opencv.hpp>
 
+
+using namespace cv;
 using namespace std;
 
 class schedule

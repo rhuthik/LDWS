@@ -10,25 +10,16 @@ using namespace cv;
 using namespace std;
 
 
-schedule scheduler;
-
 int main()
 {
-   //cv::Mat image = cv::imread("road.jpg");
-   //if (image.empty()) {
-   // std::cout << "Could not read image" << std::endl;
-   // return 1;
-   //}
-   //   Convert to grayscale
-   //cv::Mat gray;
-   //cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-   // Blurring module
-   //cv::Mat blur;
+   // Create a scheduler object
+   schedule scheduler;
 
+   // Initialize the system
    scheduler.initialize();
-   // Show the result
-   //cv::imwrite("output.png", blur);
-   //cv::waitKey();
+
+   // Run the System
+   scheduler.run();
 
    return 0;
 }
