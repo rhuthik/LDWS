@@ -1,4 +1,6 @@
-build/objects/src/shedutil/schedule.o: src/shedutil/schedule.cpp \
+build/objects/src/thresholding/threshold.o: \
+ src/thresholding/threshold.cpp include/constants.hpp \
+ include/thresholding/threshold.hpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \
@@ -104,6 +106,9 @@ build/objects/src/shedutil/schedule.o: src/shedutil/schedule.cpp \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
- include/constants.hpp include/shedutil/schedule.hpp \
- include/blurring/blur.hpp include/thresholding/threshold.hpp \
- include/edgedetection/edge.hpp
+ include/thresholding/thresholding_otsu.hpp \
+ include/thresholding/thresholding_isodata.hpp \
+ include/thresholding/thresholding_adaptive.hpp \
+ include/thresholding/thresholding_minerror.hpp \
+ include/thresholding/thresholding_maxentropy.hpp \
+ include/thresholding/thresholding_kmclustering.hpp

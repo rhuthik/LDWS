@@ -30,6 +30,7 @@ for (int i = 0; i < maxValue; i++) {
     }
 }
 cv::threshold(src, dst, threshold, 255, cv::THRESH_BINARY);
+
 // Minimum error thresholding
 cv::Mat src, dst;
 double maxValue = 255;

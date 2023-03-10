@@ -8,6 +8,7 @@ TARGET   := ldws
 INCLUDE  := -Iinclude/ 
 SRC      :=                      \
    $(wildcard src/blurring/*.cpp) \
+   $(wildcard src/thresholding/*.cpp) \
    $(wildcard src/edgedetection/*.cpp) \
    $(wildcard src/shedutil/*.cpp) \
    $(wildcard src/*.cpp)         \

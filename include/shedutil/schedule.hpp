@@ -10,21 +10,31 @@
 using namespace cv;
 using namespace std;
 
+
+struct Element {
+    int module_id;
+    int variant_id;
+    std::chrono::microseconds energy;
+    float quality;
+};
+
+
 class schedule
 {
 
-    pair<float, float> variant = make_pair(0,0);  // worst_case_time, relative_quality_change
-    vector<pair<float, float>> module;
-    vector<vector<pair<float, float>>> schedule_matrix;
-
 public:
 
+   vector<vector<Element>> schedule_matrix;
+   vector<int> selection;
+   vector<Element> sorted_selection;
 
    void initialize();
    void run();
-
-
+   void print(String print_type = "matrix"); 
 };
+
+bool compare_elements(const Element& e1, const Element& e2);
+
 
 
 #endif 

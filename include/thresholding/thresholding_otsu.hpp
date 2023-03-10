@@ -1,5 +1,5 @@
-#ifndef INCLUDE_BLUR_BOX_HPP
-#define INCLUDE_BLUR_BOX_HPP
+#ifndef INCLUDE_THRESHOLDING_OTSU_HPP
+#define INCLUDE_THRESHOLDING_OTSU_HPP
 
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -9,7 +9,7 @@ using namespace cv;
 using namespace std;
 
 
-class blur_box
+class threshold_otsu
 {
 public:
 

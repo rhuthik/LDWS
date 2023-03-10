@@ -34,7 +34,7 @@ std::chrono::microseconds blur_image::get_tick_count(int blur_selection)
     {
         for(int execution_count = 0; execution_count < INITIAL_EXECUTION_COUNT; execution_count++)
         {
-            cout << "Iteration Number: " << execution_count << endl;
+            //cout << "Iteration Number: " << execution_count << endl;
             std::chrono::microseconds current_execution_time = temp_worst_case_time;
             this->process(input_image, blurred_image, &current_execution_time, blur_selection);
             if(current_execution_time > temp_worst_case_time)
@@ -44,7 +44,7 @@ std::chrono::microseconds blur_image::get_tick_count(int blur_selection)
         }
 
     }
-    cout << "Worst Execution Time: " << temp_worst_case_time.count() << endl;
+    //cout << "Worst Execution Time: " << temp_worst_case_time.count() << endl;
     return temp_worst_case_time;
 }
 
