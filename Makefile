@@ -1,5 +1,5 @@
 CXX      := -g++
-CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror  `pkg-config --cflags --libs opencv4`
+CXXFLAGS := -pedantic-errors -Wall -Wextra -Werror  `pkg-config --cflags --libs opencv4` -fopenmp
 LDFLAGS  := -L/usr/lib -lstdc++ -lm -I/usr/include/opencv4/ -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs
 BUILD    := ./build
 OBJ_DIR  := $(BUILD)/objects
