@@ -9,6 +9,7 @@
 #include <blurring/blur.hpp>
 #include <thresholding/threshold.hpp>
 #include <edgedetection/edge.hpp>
+#include <hough/hough.hpp>
 
 using namespace cv;
 using namespace std;
@@ -17,6 +18,7 @@ using namespace std;
 blur_image blur_image_instance;
 detect_edges detect_edges_instance;
 threshold_image threshold_image_instance;
+detect_hough hough_instance;
 
 void schedule::initialize()
 {
@@ -32,14 +34,14 @@ void schedule::initialize()
             if (module_id == 0 && blur_image_instance.is_variant(variant_id)) // Deblurring
                 worst_case_execution_energy = blur_image_instance.get_tick_count(variant_id);
 
-            else if (module_id == 1 && blur_image_instance.is_variant(variant_id)) // Thresholding
-                worst_case_execution_energy = blur_image_instance.get_tick_count(variant_id);
+            else if (module_id == 1 && threshold_image_instance.is_variant(variant_id)) // Thresholding
+                worst_case_execution_energy = threshold_image_instance.get_tick_count(variant_id);
 
             else if (module_id == 2 && detect_edges_instance.is_variant(variant_id)) // Edge Detection
                 worst_case_execution_energy = detect_edges_instance.get_tick_count(variant_id);
 
-            else if (module_id == 3 && detect_edges_instance.is_variant(variant_id)) // Line Detection (Hough)
-                worst_case_execution_energy = detect_edges_instance.get_tick_count(variant_id);
+            else if (module_id == 3 && hough_instance.is_variant(variant_id)) // Line Detection (Hough)
+                worst_case_execution_energy = hough_instance.get_tick_count(variant_id);
 
             else
                 break;
@@ -147,7 +149,7 @@ void schedule::run()
 {
     while (true)
     {
-
+        // cout<<"150";
         // 1. Run the selection and note down the individual cycles
         cv::Mat processed_image = this->run_selection();
         // cout << "1" << endl;
