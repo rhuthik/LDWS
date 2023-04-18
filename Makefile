@@ -10,7 +10,7 @@ SRC      :=                      \
    $(wildcard src/blurring/*.cpp) \
    $(wildcard src/thresholding/*.cpp) \
    $(wildcard src/edgedetection/*.cpp) \
-   $(wildcard src/hough/*.cpp) \
+   $(wildcard src/houghlines/*.cpp) \
    $(wildcard src/shedutil/*.cpp) \
    $(wildcard src/*.cpp)         \
 

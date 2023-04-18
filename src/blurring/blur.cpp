@@ -28,7 +28,9 @@ bool blur_image::is_variant(int blur_selection)
 std::chrono::microseconds blur_image::get_tick_count(int blur_selection)
 {
     std::chrono::microseconds temp_worst_case_time (0);
-    cv::Mat input_image = cv::imread("../../dataset/initialization/road.jpg");
+    cv::Mat input_image = cv::imread("/home/cps/ldws/dataset/initialization/road.jpg");
+    cv::Mat input_image_gray;
+    cv::cvtColor(input_image, input_image_gray, cv::COLOR_BGR2GRAY);
     cv::Mat blurred_image;
     if(this->is_variant(blur_selection))
     {
@@ -36,7 +38,13 @@ std::chrono::microseconds blur_image::get_tick_count(int blur_selection)
         {
             //cout << "Iteration Number: " << execution_count << endl;
             std::chrono::microseconds current_execution_time = temp_worst_case_time;
-            this->process(input_image, blurred_image, &current_execution_time, blur_selection);
+            blurred_image=this->process(input_image_gray, &current_execution_time, blur_selection);
+            std::string filename = "../../dataset/output/blur/blur" + std::to_string(blur_selection) + ".jpg";
+            cv::imwrite(filename, blurred_image);
+            if (blurred_image.empty())
+            {
+                std::cout << "Could not read blurred image" << std::endl;
+            }
             if(current_execution_time > temp_worst_case_time)
             {
                 temp_worst_case_time = current_execution_time;
@@ -48,29 +56,29 @@ std::chrono::microseconds blur_image::get_tick_count(int blur_selection)
     return temp_worst_case_time;
 }
 
-void blur_image::process(cv::Mat input,cv::Mat& output, std::chrono::microseconds* tick_count, int blur_selection)
+cv::Mat blur_image::process(cv::Mat& input, std::chrono::microseconds* tick_count, int blur_selection)
 {
+    cv::Mat output;
     auto start_time = std::chrono::steady_clock::now();
     if(blur_selection == 0) // box blurring
     {
-        object_box.process(input, output);       
+        output=object_box.process(input);       
     }
     else if(blur_selection == 1) // gaussian blurring
     {
-        object_gaussian.process(input, output);     
+        output=object_gaussian.process(input);     
     }
     else if(blur_selection == 2) // histogram blurring
     {
-        object_histogram.process(input, output);     
+        output=object_histogram.process(input);     
     }
     else if(blur_selection == 3) // median blurring
     {
-        object_median.process(input, output);     
+        output=object_median.process(input);     
     }
-
     auto end_time = std::chrono::steady_clock::now();
 
     // Calculate elapsed time in microsecs
     *tick_count = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-
+    return output;
 }

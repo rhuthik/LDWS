@@ -16,7 +16,7 @@ public:
 
     bool is_variant(int edge_detection_selection);
     std::chrono::microseconds get_tick_count(int edge_detection_selection);
-    void process(cv::Mat input, cv::Mat& output, std::chrono::microseconds* tick_count, int edge_detection_selection);
+    cv::Mat process(cv::Mat& input, std::chrono::microseconds* tick_count, int edge_detection_selection);
     
 };
 

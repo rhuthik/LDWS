@@ -7,7 +7,9 @@ using namespace cv;
 using namespace std;
 
 
-void blur_median::process(cv::Mat input, cv::Mat output)
+cv::Mat blur_median::process(cv::Mat& input)
 {
+  cv::Mat output;
   cv::medianBlur(input,output,3);
+  return output;
 }

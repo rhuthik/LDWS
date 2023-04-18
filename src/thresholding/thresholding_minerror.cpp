@@ -7,8 +7,9 @@ using namespace cv;
 using namespace std;
 
 
-void threshold_minerror::process(cv::Mat input, cv::Mat output)
+cv::Mat threshold_minerror::process(cv::Mat& input)
 {
+  cv::Mat output;
   double maxValue = 255;
   int numIterations = 10;
   int threshold = cv::mean(input).val[0]; // initial threshold
@@ -21,4 +22,5 @@ void threshold_minerror::process(cv::Mat input, cv::Mat output)
     threshold = (mean1 + mean2) / 2;
   }
   cv::threshold(input, output, threshold, 255, cv::THRESH_BINARY);
+  return output;
 }

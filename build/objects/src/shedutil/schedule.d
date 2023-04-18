@@ -106,4 +106,4 @@ build/objects/src/shedutil/schedule.o: src/shedutil/schedule.cpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
  include/constants.hpp include/shedutil/schedule.hpp \
  include/blurring/blur.hpp include/thresholding/threshold.hpp \
- include/edgedetection/edge.hpp
+ include/edgedetection/edge.hpp include/houghlines/hough.hpp

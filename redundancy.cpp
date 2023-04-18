@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
 cv::Mat img1 = cv::imread("road.jpg", cv::IMREAD_GRAYSCALE);
-cv::Mat img2 = cv::imread("road.jpg", cv::IMREAD_GRAYSCALE);
+cv::Mat img2 = cv::imread("edges1.jpg", cv::IMREAD_GRAYSCALE);
 
 // double ssimValue = 0.0;
 // double ssim = ssim(img1, img2);

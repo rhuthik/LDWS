@@ -7,8 +7,9 @@ using namespace cv;
 using namespace std;
 
 
-void threshold_kmclustering::process(cv::Mat input, cv::Mat output)
+cv::Mat threshold_kmclustering::process(cv::Mat& input)
 {
+  cv::Mat output;
   int numClusters = 2; // number of clusters
   cv::Mat samples(input.rows * input.cols, 1, CV_32F);
   int sampleIdx = 0;
@@ -24,5 +25,5 @@ void threshold_kmclustering::process(cv::Mat input, cv::Mat output)
   int threshold = (int)centers.at<float>(0, 0); // use the minimum cluster center as threshold
   if (centers.at<float>(1, 0) < threshold) threshold = (int)centers.at<float>(1, 0); // update the threshold if there is a lower center
   cv::threshold(input, output, threshold, 255, cv::THRESH_BINARY);
-
+  return output;
 }

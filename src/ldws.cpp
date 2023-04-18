@@ -11,23 +11,27 @@ using namespace std;
 
 int main()
 {
-   // Create a scheduler object
-   schedule scheduler;
+  // Create a scheduler object
+  schedule scheduler;
 
-   // Initialize the system
-   scheduler.initialize();
-   cout << "Initialization Complete" << endl;
-   // Run the System
-   long m;
-#pragma omp parallel
-   {
-      if (omp_get_thread_num() == 0)
-         m = omp_get_num_threads();
-   }
-#pragma omp parallel num_threads(m)
-   {
-      scheduler.run();
-   }
+  // Initialize the system
+  scheduler.initialize();
+  
+  cout << "Initialization Complete" << endl;
 
-   return 0;
+  scheduler.run();
+
+  return 0;
 }
+
+// Run the System
+// long m;
+// #pragma omp parallel
+// {
+//  if (omp_get_thread_num() == 0)
+//     m = omp_get_num_threads();
+// }
+// #pragma omp parallel num_threads(m)
+//   {
+
+// }

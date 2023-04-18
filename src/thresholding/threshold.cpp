@@ -26,14 +26,16 @@ bool threshold_image::is_variant(int threshold_selection)
     else
     {
         return true;
-    }
+    }                            
 
 }
 
 std::chrono::microseconds threshold_image::get_tick_count(int threshold_selection)
 {
     std::chrono::microseconds temp_worst_case_time (0);
-    cv::Mat input_image = cv::imread("../../dataset/initialization/blurred.png");
+    // cv::Mat input_image_gray;
+    cv::Mat input_image_gray = cv::imread("../../dataset/initialization/blur.png",cv::IMREAD_GRAYSCALE);
+    // cv::cvtColor(input_image,input_image_gray,cv::COLOR_BGR2GRAY);
     cv::Mat thresholded_image;
     if(this->is_variant(threshold_selection))
     {
@@ -41,7 +43,9 @@ std::chrono::microseconds threshold_image::get_tick_count(int threshold_selectio
         {
             //cout << "Iteration Number: " << execution_count << endl;
             std::chrono::microseconds current_execution_time = temp_worst_case_time;
-            this->process(input_image, thresholded_image, &current_execution_time, threshold_selection);
+            thresholded_image=this->process(input_image_gray, &current_execution_time, threshold_selection);
+            std::string filename = "../../dataset/output/threshold/threshold" + std::to_string(threshold_selection) + ".jpg";
+            cv::imwrite(filename, thresholded_image);
             if(current_execution_time > temp_worst_case_time)
             {
                 temp_worst_case_time = current_execution_time;
@@ -53,37 +57,38 @@ std::chrono::microseconds threshold_image::get_tick_count(int threshold_selectio
     return temp_worst_case_time;
 }
 
-void threshold_image::process(cv::Mat input,cv::Mat& output, std::chrono::microseconds* tick_count, int threshold_selection)
+cv::Mat threshold_image::process(cv::Mat& input, std::chrono::microseconds* tick_count, int threshold_selection)
 {
+    cv::Mat output;
     auto start_time = std::chrono::steady_clock::now();
     if(threshold_selection == 0) // Otsu Thresholding
     {
-        object_otsu.process(input, output);       
+        output=object_otsu.process(input);       
     }
     else if(threshold_selection == 1) // IsoData Thresholding
     {
-        object_isodata.process(input, output);     
+        output=object_isodata.process(input);     
     }
     else if(threshold_selection == 2) // Adaptive Thresholding
     {
-        object_adaptive.process(input, output);     
+        output=object_adaptive.process(input);     
     }
     else if(threshold_selection == 3) // MinError Thresholding
     {
-        object_minerror.process(input, output);     
+        output=object_minerror.process(input);     
     }
     else if(threshold_selection == 4) // MaxEntropy Thresholding
     {
-        object_maxentropy.process(input, output);     
+        output=object_maxentropy.process(input);     
     }
     else if(threshold_selection == 5) // KMeanClustering Thresholding
     {
-        object_kmclustering.process(input, output);     
+        output=object_kmclustering.process(input);     
     }
 
     auto end_time = std::chrono::steady_clock::now();
 
     // Calculate elapsed time in microsecs
     *tick_count = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
-
+    return output;
 }

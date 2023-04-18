@@ -7,8 +7,9 @@ using namespace cv;
 using namespace std;
 
 
-void threshold_isodata::process(cv::Mat input, cv::Mat output)
+cv::Mat threshold_isodata::process(cv::Mat& input)
 {
+  cv::Mat output;
   double maxValue = 255;
   double threshold = cv::mean(input).val[0]; // initial threshold
   double delta = 1.0;
@@ -23,5 +24,5 @@ void threshold_isodata::process(cv::Mat input, cv::Mat output)
     threshold = newThreshold;
   }
   cv::threshold(input, output, threshold, 255, cv::THRESH_BINARY);
-
+  return output;
 }

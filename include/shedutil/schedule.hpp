@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include <blurring/blur.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -31,9 +32,17 @@ public:
     // Processing requirements and other elements
     long long int image_count = 0;
     long long int total_image_count = 0;
+    long long int system_capacity;
+
+    // Configurations
+    double redundancy_threshold = 42;
+    float quality_threshold = 10;
     long long int required_fps = 30;
     long long int total_energy_budget = 999999999999;
-    long long int system_capacity;
+
+    // Run time Storage
+    vector<float> accuracy_per_image;
+    vector<int> energy_per_image;
 
     void initialize();
 
@@ -75,22 +84,29 @@ public:
     // Generate feasible selections // 5
     bool save_energy = false;
     std::chrono::microseconds available_budget;
-    float quality_threshold;
     void generate_feasible_selections();
 
     // Optional
+    int get_actual_position(int module_id, int row_id);
     void get_relative_selections();
     void generate_feasibility_set(std::chrono::microseconds available_budget, float quality_threshold);
 
     // Update Selection // 6
     bool unknown_variant_flag = false;
     String update_selection_nature = "explorative"; // can be explorative and non-explorative
-    String update_selection_priority = "energy";    // can be energy, quality, energy-quality, quality-energy, balanced
-    String update_selection_mode = "min";           // max, min, center-left, center-right, random
+    String update_selection_priority = "quality";        // can be energy, quality, energy-quality, quality-energy, balanced   1. n-e, energy, min 2. n-e, quality, min  3. best mode 4. worst mode
+    String update_selection_mode = "max";               // max, min, center-left, center-right, random
     void update_selection_set();
 
+    // Log Components
+    std::ofstream txt_file;
+    std::ofstream data_file;
+    int selected_module_id = -1;
+    int selected_variant_id = -1;
+    String dataset = "../../dataset/results/files/kitti";
+
     // Utility Functions
-    void log();
+    void log(String state = "run");
     void print(String print_type = "matrix");
     void reconfigure_inputs(std::chrono::microseconds execution_time);
     bool compute_energy_feasibility(Element e, std::chrono::microseconds available_budget);
@@ -99,6 +115,7 @@ public:
 bool compare_energy(const Element &e1, const Element &e2);
 bool compare_quality(const Element &e1, const Element &e2);
 vector<std::string> read_images_in_directory(const std::string directory);
-cv::Mat get_next_image(std::vector<std::string> image_files, bool is_current_image = false);
+cv::Mat get_next_image(std::vector<std::string> image_files, bool is_current_image, String purpose);
+void reset_all();
 
 #endif

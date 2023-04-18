@@ -13,7 +13,7 @@ class blur_histogram
 {
 public:
 
-   void process(cv::Mat input, cv::Mat output);
+   cv::Mat process(cv::Mat& input);
 
 };
 

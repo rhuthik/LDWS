@@ -55,7 +55,7 @@ void edge_detection(Mat blur,Mat& edges,int m_two){
 }
 
 void Hough_Transforms(Mat result,Mat edges,vector<cv::Vec2f>& lines,int m_three){
-/ if(m_three==1){
+  if(m_three==1){
    HoughLinesP(edges, lines, 1, CV_PI/180, 50, 50, 10); //proba
 }
   if(m_three==2){
@@ -170,7 +170,7 @@ int main() {
   // getticks();
   auto start_time = std::chrono::steady_clock::now();
   // Read the road image
-  cv::Mat image = cv::imread("road.jpg");
+  cv::Mat image = cv::imread("/home/cps/ldws/dataset/inputs/test/f00249.png");
 
   // Check if image is empty
   if (image.empty()) {
@@ -228,7 +228,7 @@ int main() {
   std::cout << "Elapsed time total: "<<"  "  << elapsed_time.count() << " us" << std::endl;
 
   // Show the result
-  cv::imwrite("houghresult3.png", result);
+  cv::imwrite("/home/cps/ldws/dataset/references/f00249.png", result);
   cv::waitKey();
 
   return 0;
