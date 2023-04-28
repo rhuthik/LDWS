@@ -22,10 +22,15 @@ class schedule
 {
 
 public:
+    schedule(double redundancy_threshold, float quality_threshold,
+             long long int required_fps, long long int total_energy_budget,
+             String update_selection_nature, String update_selection_priority,
+             String update_selection_mode, String initial_selection_mode);
     // initialization
     vector<vector<Element>> schedule_matrix;
     vector<pair<int, int>> selection;
     vector<Element> relative_selection;
+    String initial_selection_mode = String(INITIAL_SELECTION);
 
     int selection_length = 0;
 
@@ -38,14 +43,14 @@ public:
     double redundancy_threshold = 42;
     float quality_threshold = 10;
     long long int required_fps = 30;
-    long long int total_energy_budget = 999999999999;
+    long long int total_energy_budget = 9999999;
 
     // Run time Storage
     vector<float> accuracy_per_image;
     vector<int> energy_per_image;
 
     void initialize();
-
+    int max_module_length = 0;
     // Optional
     vector<Element> left_relative_selection;
     vector<Element> right_relative_selection;
@@ -94,8 +99,8 @@ public:
     // Update Selection // 6
     bool unknown_variant_flag = false;
     String update_selection_nature = "explorative"; // can be explorative and non-explorative
-    String update_selection_priority = "quality";        // can be energy, quality, energy-quality, quality-energy, balanced   1. n-e, energy, min 2. n-e, quality, min  3. best mode 4. worst mode
-    String update_selection_mode = "max";               // max, min, center-left, center-right, random
+    String update_selection_priority = "quality";   // can be energy, quality, energy-quality, quality-energy, balanced   1. n-e, energy, min 2. n-e, quality, min  3. best mode 4. worst mode
+    String update_selection_mode = "max";           // max, min, center-left, center-right, random
     void update_selection_set();
 
     // Log Components

@@ -1,0 +1,5 @@
+energy_run_selection, energy_update_accuracy, energy_redundancy_check, energy_cal_budget, energy_gen_selections, energy_update_selection, current_computation_energy, available_energy_per_image, total_system_capacity_available, total_budget_available, current_accuracy, changed_module_id, changed_variant_id, images_remaining, number_of_available_selections 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0 
+15220, 8890, 34286, 1, 8, 6, 58411, 3274937, 3274922, 99941603, 24.767, 0, 2, 10, 5
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0 
+18482, 9014, 3829, 1, 0, 8, 31334, 3301993, 3301999, 99910263, 13.9767, 0, 3, 10, 6

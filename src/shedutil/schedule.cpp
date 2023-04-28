@@ -22,8 +22,8 @@ using namespace std;
 
 int image_index = 0;
 int counting = 000000;
-int energy[18];
-double accuracyarr[18];
+// int energy[18];
+// double accuracyarr[18];
 
 // Create a Module Object
 blur_image blur_image_instance;
@@ -31,9 +31,26 @@ detect_edges detect_edges_instance;
 threshold_image threshold_image_instance;
 detect_hough hough_instance;
 
+schedule::schedule(double redundancy_threshold, float quality_threshold,
+                   long long int required_fps, long long int total_energy_budget,
+                   String update_selection_nature, String update_selection_priority,
+                   String update_selection_mode, String initial_selection_mode)
+{
+    this->redundancy_threshold = redundancy_threshold;
+    this->quality_threshold = quality_threshold;
+    this->required_fps = required_fps;
+    this->total_energy_budget = total_energy_budget;
+    this->update_selection_nature = update_selection_nature;
+    this->update_selection_priority = update_selection_priority;
+    this->update_selection_mode = update_selection_mode;
+    this->initial_selection_mode = initial_selection_mode;
+    counting = 0;
+    image_index = 0;
+    return;
+}
+
 void schedule::initialize()
 {
-
     for (int module_id = 0; module_id < MODULE_COUNT; module_id++)
     {
         this->schedule_matrix.push_back(vector<Element>());
@@ -62,6 +79,8 @@ void schedule::initialize()
             this->schedule_matrix[module_id].push_back(Element{module_id, variant_id, worst_case_execution_energy, 0.0});
             variant_id++;
         }
+        if (this->max_module_length < variant_id)
+            this->max_module_length = variant_id;
         // cout << "abcd" << endl;
     }
     // //cout << "here" << endl;;
@@ -81,22 +100,22 @@ void schedule::initialize()
     {
         int variant_selection = 0;
         int size = static_cast<int>(this->schedule_matrix[static_cast<int>(i)].size());
-        if (String(INITIAL_SELECTION) == "left")
+        if (initial_selection_mode == "left")
         {
             variant_selection = 0;
         }
-        else if (String(INITIAL_SELECTION) == "right")
+        else if (initial_selection_mode == "right")
         {
             variant_selection = size - 1;
         }
-        else if (String(INITIAL_SELECTION) == "center_right")
+        else if (initial_selection_mode == "center_right")
         {
             if (size % 2 == 0)
                 variant_selection = size / 2 + 1 - 1; //+1 for right element and -1 to adjust index as it starts from 0
             else
                 variant_selection = ((size + 2 - 1) / 2) - 1;
         }
-        else if (String(INITIAL_SELECTION) == "center_left")
+        else if (initial_selection_mode == "center_left")
         {
             if (size % 2 == 0)
                 variant_selection = size / 2 - 1; //+1 for right element and -1 to adjust index as it starts from 0
@@ -155,7 +174,7 @@ void schedule::initialize()
     // Build Path
     String storage_path = this->dataset;
     mkdir(storage_path.c_str(), 0777);
-    storage_path += "/" + String(INITIAL_SELECTION);
+    storage_path += "/" + initial_selection_mode;
     mkdir(storage_path.c_str(), 0777);
     storage_path += "/" + to_string(this->required_fps) + "_fps";
     mkdir(storage_path.c_str(), 0777);
@@ -176,7 +195,7 @@ void schedule::initialize()
     this->data_file.open(storage_path + "/output.csv");
 
     // Columns
-    this->data_file << "image number, energy_run_selection, energy_update_accuracy, energy_redundancy_check, energy_cal_budget, energy_gen_selections, energy_update_selection, total_computation_energy, available_energy_per_image, accuracy, changed_module_id, changed_variant_id\n";
+    this->data_file << "energy_run_selection, energy_update_accuracy, energy_redundancy_check, energy_cal_budget, energy_gen_selections, energy_update_selection, current_computation_energy, available_energy_per_image, total_system_capacity_available, total_budget_available, current_accuracy, changed_module_id, changed_variant_id, images_remaining, number_of_available_selections \n";
 
     // Initial Section and Schedule Matrix
     this->txt_file.open(storage_path + "/selection_data.txt");
@@ -203,7 +222,11 @@ void schedule::run()
 
         //  Breaks if there is nothing to process
         if (this->read_error_flag)
+        {
+            this->txt_file << "No more images to read\n"
+                           << endl;
             break;
+        }
 
         //  2. Compute and update Worst Case Execution Cycles and Accuracy
         this->update_worst_case_cycles_quality(processed_image);
@@ -212,12 +235,20 @@ void schedule::run()
         this->check_redundancy_statistics();
         if (this->read_error_flag)
         {
+            this->txt_file << "No more images to read\n"
+                           << endl;
             break;
         }
 
         //  4. Compute energy budgets
         this->compute_energy_budgets();
         // cout << "4\n";
+        if (this->read_error_flag)
+        {
+            this->txt_file << "System out of energy\n"
+                           << endl;
+            break;
+        }
 
         //  5. Generate feasible selections
         this->generate_feasible_selections();
@@ -343,7 +374,7 @@ void schedule::update_worst_case_cycles_quality(cv::Mat output_image) // 2
     this->time_update_accuracy = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
     cout << accuracy << " accuracy\n"
          << endl;
-    accuracyarr[counting] = accuracy;
+    // accuracyarr[counting] = accuracy;
     this->print();
     cout << "accuracy updated" << endl;
     return;
@@ -411,6 +442,8 @@ void schedule::check_redundancy_statistics() // 3
         if (this->total_image_count <= 0)
         {
             this->read_error_flag = true;
+            auto end_time = std::chrono::steady_clock::now();
+            time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time));
             break;
         }
         // End the timer and record the values
@@ -420,9 +453,11 @@ void schedule::check_redundancy_statistics() // 3
         // Prints Not Included in the timing (Extra logic)
         if (similarity < this->redundancy_threshold)
         {
+            this->data_file << "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, " << this->total_image_count << ", 0 \n";
             cout << "redundant image, updating total_image_count";
         }
         cout << "Redundancy value: " << similarity << endl;
+        this->txt_file << "Redundant Image:" << endl;
     }
 
     std::chrono::microseconds initial_budget(0);
@@ -441,6 +476,7 @@ void schedule::compute_energy_budgets() // 4
                                                    this->time_energy_budget + this->time_generate_selections +
                                                    this->time_update_selections;
     long long int left_over_budget = this->total_energy_budget - computation_budget.count();
+    this->total_energy_budget = this->total_energy_budget - computation_budget.count();
     // cout <<"lob"<< left_over_budget << endl;
 
     // Get the budget per image based on left over budget and calculate if system needs to save energy and also calculate available budget
@@ -451,7 +487,6 @@ void schedule::compute_energy_budgets() // 4
     long long int calculated_budget_for_state_change = calculated_budget_per_image - computation_budget.count();
     // available system capacity for state change
     long long int system_capacity_for_processing = this->system_capacity - computation_budget.count();
-
     std::chrono::microseconds temp_budget(min(calculated_budget_for_state_change, system_capacity_for_processing));
     this->available_budget = temp_budget;
 
@@ -465,7 +500,11 @@ void schedule::compute_energy_budgets() // 4
     std::cout << "computation energy: " << computation_budget.count() << "\n";
     std::cout << "available energy: " << available_budget.count() << "\n";
     this->energy_per_image.push_back(computation_budget.count());
-    energy[counting] = computation_budget.count();
+    // energy[counting] = computation_budget.count();
+    if (left_over_budget <= 0)
+    {
+        this->read_error_flag = true;
+    }
     return;
 }
 
@@ -476,115 +515,124 @@ void schedule::generate_feasible_selections() // 5
     auto start_time_1 = std::chrono::steady_clock::now();
     this->relative_selection.clear();
     auto end_time_1 = std::chrono::steady_clock::now();
-
     time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_1 - start_time_1));
+    int deviation_factor = 1;
 
-    for (int i = 0; i < this->selection_length; i++)
+    while (static_cast<int>(this->relative_selection.size()) < 1)
     {
-        // Look at left side always
-        auto start_time_2 = std::chrono::steady_clock::now();
 
-        auto current_selection = this->selection[i];
-        int actual_variant_id = this->get_actual_position(current_selection.first, current_selection.second);
-        auto condition_0 = (actual_variant_id != 0);
-
-        auto end_time_2 = std::chrono::steady_clock::now();
-        time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_2 - start_time_2));
-        if (condition_0)
+        for (int i = 0; i < this->selection_length; i++)
         {
-            auto start_time_3 = std::chrono::steady_clock::now();
-            auto left_element = this->schedule_matrix[current_selection.first][actual_variant_id - 1];
-            auto current_element = this->schedule_matrix[current_selection.first][actual_variant_id];
-            auto condition_1 = ((left_element.quality == 0) || (left_element.quality >= this->quality_threshold));
-            auto end_time_3 = std::chrono::steady_clock::now();
+            // Look at left side always
+            auto start_time_2 = std::chrono::steady_clock::now();
 
-            time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_3 - start_time_3));
+            auto current_selection = this->selection[i];
+            int actual_variant_id = this->get_actual_position(current_selection.first, current_selection.second);
+            auto condition_0 = (actual_variant_id - deviation_factor >= 0);
 
-            if (condition_1)
+            auto end_time_2 = std::chrono::steady_clock::now();
+            time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_2 - start_time_2));
+            if (condition_0)
             {
-                auto start_time_4 = std::chrono::steady_clock::now();
-                auto condition_2 = ((left_element.energy.count() - current_element.energy.count()) <= this->available_budget.count());
-                auto end_time_4 = std::chrono::steady_clock::now();
-                time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_4 - start_time_4));
+                auto start_time_3 = std::chrono::steady_clock::now();
+                auto left_element = this->schedule_matrix[current_selection.first][actual_variant_id - deviation_factor];
+                auto current_element = this->schedule_matrix[current_selection.first][actual_variant_id];
+                auto condition_1 = ((left_element.quality == 0) || (left_element.quality >= this->quality_threshold)); // constraint on quality
+                auto end_time_3 = std::chrono::steady_clock::now();
 
-                // if (this->compute_energy_feasibility(left_element, this->available_budget))
-                if (condition_2)
+                time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_3 - start_time_3));
+
+                if (condition_1)
                 {
-                    auto start_time_5 = std::chrono::steady_clock::now();
+                    auto start_time_4 = std::chrono::steady_clock::now();
+                    auto condition_2 = ((left_element.energy.count() - current_element.energy.count()) <= this->available_budget.count()); //constraint on energy
+                    auto end_time_4 = std::chrono::steady_clock::now();
+                    time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_4 - start_time_4));
 
-                    this->relative_selection.push_back(left_element);
-                    if (left_element.quality == 0)
-                        this->unknown_variant_flag = true;
+                    // if (this->compute_energy_feasibility(left_element, this->available_budget))
+                    if (condition_2)
+                    {
+                        auto start_time_5 = std::chrono::steady_clock::now();
 
-                    auto end_time_5 = std::chrono::steady_clock::now();
-                    time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_5 - start_time_5));
+                        this->relative_selection.push_back(left_element);
+                        if (left_element.quality == 0)
+                            this->unknown_variant_flag = true;
+
+                        auto end_time_5 = std::chrono::steady_clock::now();
+                        time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_5 - start_time_5));
+                    }
+                    else // rejected due to energy
+                    {
+                        std::cout << "not feasible wrt energy" << endl;
+                    }
                 }
-                else // rejected due to energy
+                else // rejected due to quality
                 {
-                    std::cout << "not feasible wrt energy" << endl;
+                    std::cout << "not feasible wrt quality" << endl;
                 }
             }
-            else // rejected due to quality
+            else // boundary condition
             {
-                std::cout << "not feasible wrt quality" << endl;
+                // Handle out-of-range access to schedule_matrix
+                std::cout << "Current element is left most element of the row " << current_selection.first
+                          << ", column " << actual_variant_id << std::endl;
             }
-        }
-        else // boundary condition
-        {
-            // Handle out-of-range access to schedule_matrix
-            std::cout << "Current element is left most element of the row " << current_selection.first
-                      << ", column " << actual_variant_id << std::endl;
-        }
-        // TODO: check if there is atleast one permutation for changing.
+            // TODO: check if there is atleast one permutation for changing.
 
-        // Right Side -- Process only if there is energy
-        if ((actual_variant_id < (static_cast<int>(this->schedule_matrix[current_selection.first].size()) - 1)) && (!this->save_energy))
-        {
-            std::cout << "Enough Energy to Process Right side as well" << endl;
-
-            auto start_time_6 = std::chrono::steady_clock::now();
-            auto current_element = this->schedule_matrix[current_selection.first][actual_variant_id];
-            auto right_element = this->schedule_matrix[current_selection.first][actual_variant_id + 1];
-            auto condition_3 = ((right_element.energy.count() - current_element.energy.count()) <= this->available_budget.count());
-            auto end_time_6 = std::chrono::steady_clock::now();
-            time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_6 - start_time_6));
-
-            if (condition_3)
+            // Right Side -- Process only if there is energy
+            if ((actual_variant_id + deviation_factor - 1 < (static_cast<int>(this->schedule_matrix[current_selection.first].size()) - 1)) && (!this->save_energy))
             {
-                auto start_time_7 = std::chrono::steady_clock::now();
-                auto condition_4 = ((right_element.quality == 0) || (right_element.quality >= this->quality_threshold));
-                auto end_time_7 = std::chrono::steady_clock::now();
-                time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_7 - start_time_7));
-                if (condition_4)
+                std::cout << "Enough Energy to Process Right side as well" << endl;
+
+                auto start_time_6 = std::chrono::steady_clock::now();
+                auto current_element = this->schedule_matrix[current_selection.first][actual_variant_id];
+                auto right_element = this->schedule_matrix[current_selection.first][actual_variant_id + deviation_factor];
+                auto condition_3 = ((right_element.energy.count() - current_element.energy.count()) <= this->available_budget.count());
+                auto end_time_6 = std::chrono::steady_clock::now();
+                time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_6 - start_time_6));
+
+                if (condition_3)
                 {
-                    auto start_time_8 = std::chrono::steady_clock::now();
-                    this->relative_selection.push_back(right_element);
-                    if (right_element.quality == 0)
-                        this->unknown_variant_flag = true;
-                    auto end_time_8 = std::chrono::steady_clock::now();
-                    time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_8 - start_time_8));
+                    auto start_time_7 = std::chrono::steady_clock::now();
+                    auto condition_4 = ((right_element.quality == 0) || (right_element.quality >= this->quality_threshold));
+                    auto end_time_7 = std::chrono::steady_clock::now();
+                    time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_7 - start_time_7));
+                    if (condition_4)
+                    {
+                        auto start_time_8 = std::chrono::steady_clock::now();
+                        this->relative_selection.push_back(right_element);
+                        if (right_element.quality == 0)
+                            this->unknown_variant_flag = true;
+                        auto end_time_8 = std::chrono::steady_clock::now();
+                        time_temp_vector.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end_time_8 - start_time_8));
+                    }
+                    else
+                    {
+                        std::cout << "failed wrt quality--right" << endl;
+                    }
+
+                    // add else for retesting and giving another chance for band methods as there is sufficient budget
                 }
                 else
                 {
-                    std::cout << "failed wrt quality--right" << endl;
+                    std::cout << "failed wrt energy--right" << endl;
                 }
-
-                // add else for retesting and giving another chance for band methods as there is sufficient budget
             }
             else
             {
-                std::cout << "failed wrt energy--right" << endl;
+                // Handle out-of-range access to schedule_matrix
+                std::cout << "Current element is right most element of the row " << current_selection.first
+                          << ", column " << actual_variant_id << std::endl;
             }
         }
-        else
-        {
-            // Handle out-of-range access to schedule_matrix
-            std::cout << "Current element is right most element of the row " << current_selection.first
-                      << ", column " << actual_variant_id << std::endl;
-        }
+        deviation_factor++;
+        if (deviation_factor >= (this->max_module_length + 1) / 2)
+            break;
     }
 
     std::chrono::microseconds initial_budget(0);
+    for (auto it = 0; it < static_cast<int>(time_temp_vector.size()); it++)
+        cout << time_temp_vector[it].count() << " ------:----";
     this->time_generate_selections = accumulate(time_temp_vector.begin(), time_temp_vector.end(), initial_budget);
     // this->print("relative_selection");
     // this->print();
@@ -680,7 +728,8 @@ void schedule::update_selection_set() // 6
     {
         std::cout << "Index: " << i << ", Value: (" << this->selection[i].first << ", " << this->selection[i].second << ")" << std::endl;
     }
-
+    this->selected_module_id = selected_element.module_id;
+    this->selected_variant_id = selected_element.variant_id;
     return;
 }
 
@@ -846,7 +895,27 @@ void schedule::log(String state)
     }
     else if (state == "run")
     {
-        cout << "run_state" << endl;
+        std::chrono::microseconds computation_budget = this->time_run_selections +
+                                                       this->time_update_accuracy + this->time_update_redundancy +
+                                                       this->time_energy_budget + this->time_generate_selections +
+                                                       this->time_update_selections;
+        int available_selections = static_cast<int>(this->relative_selection.size());
+        this->data_file << this->time_run_selections.count()
+                        << ", " << this->time_update_accuracy.count()
+                        << ", " << this->time_update_redundancy.count()
+                        << ", " << this->time_energy_budget.count()
+                        << ", " << this->time_generate_selections.count()
+                        << ", " << this->time_update_selections.count()
+                        << ", " << computation_budget.count()
+                        << ", " << this->available_budget.count()
+                        << ", " << this->system_capacity - computation_budget.count()
+                        << ", " << this->total_energy_budget
+                        << ", " << this->current_quality
+                        << ", " << this->selected_module_id
+                        << ", " << this->selected_variant_id
+                        << ", " << this->total_image_count
+                        << ", " << available_selections
+                        << endl;
     }
     return;
 }
@@ -938,6 +1007,7 @@ cv::Mat get_next_image(std::vector<std::string> image_files, bool is_current_ima
         cout << "\n";
         cout << image_index << " " << static_cast<int>(image_files.size()) << "\n";
         cout << "All Images have been processed" << endl;
+        /*
         for (int i = 0; i < 18; i++)
         {
             std::cout << energy[i] << " ";
@@ -946,6 +1016,7 @@ cv::Mat get_next_image(std::vector<std::string> image_files, bool is_current_ima
         {
             std::cout << accuracyarr[i] << " ";
         }
+        */
     }
     return image;
 }
