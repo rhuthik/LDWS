@@ -41,7 +41,7 @@ public:
 
     // Configurations
     double redundancy_threshold = 42;
-    float quality_threshold = 10;
+    float quality_threshold = 15;
     long long int required_fps = 30;
     long long int total_energy_budget = 9999999;
 

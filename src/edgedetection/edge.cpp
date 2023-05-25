@@ -57,17 +57,17 @@ cv::Mat detect_edges::process(cv::Mat& input, std::chrono::microseconds *tick_co
     auto start_time = std::chrono::steady_clock::now();
     if (edge_detection_selection == 0) // Canny Edge
     {
-        cout<<"reached canny"<<endl;
+        // cout<<"reached canny"<<endl;
         output=object_canny.process(input);
     }
     else if (edge_detection_selection == 1) // Laplacian Edge
     {
-        cout<<"reached lap"<<endl;
+        // cout<<"reached lap"<<endl;
         output=object_laplacian.process(input);
     }
     else if (edge_detection_selection == 2) // Sobel Edge
     {
-        cout<<"reached sobel"<<endl;
+        // cout<<"reached sobel"<<endl;
         output=object_sobel.process(input);
     }
     else{
